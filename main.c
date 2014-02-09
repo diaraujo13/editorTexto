@@ -1,8 +1,22 @@
-/* ~ATIVIDADES FUTURAS~
- * COPIAR COLAR, DOCUMENTAÇÃO EM PROGRAMAÇÃO, MUDAR FONTE, FICAR EM PURO TXT
- * LOCALIZAR NOS STRING
- * TENTAR CRIAR ABAS :)
- *
+/*  
+    main.c
+
+    Copyright (C) 2014 Izaias Araújo <izaiasousa@gmail.com>
+
+    Este arquivo é parte do programa e-Text
+
+    e-Text é um software livre; você pode redistribuí-lo e/ou 
+    modificá-lo dentro dos termos da Licença Pública Geral GNU como 
+    publicada pela Fundação do Software Livre (FSF); na versão 2 da 
+    Licença, ou (na sua opinião) qualquer versão.
+
+    Este programa é distribuído na esperança de que possa ser  útil, 
+    mas SEM NENHUMA GARANTIA; sem uma garantia implícita de ADEQUAÇÃO a qualquer
+    MERCADO ou APLICAÇÃO EM PARTICULAR. Veja a Licença Pública Geral GNU para maiores detalhes.
+
+    Você deve ter recebido uma cópia da Licença Pública Geral GNU
+    junto com este programa, se não, escreva para a Fundação do Software
+    Livre(FSF) Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <string.h>
@@ -10,14 +24,10 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
-/* Declaração dos protótipos de função num arquivo de cabeçalho */
 #include "main.h"
-   
-int main (int argc, char *argv[]){
 
-    /*---- UM PONTEIRO PARA UMA ESTRUTURA DE WIDGET ------------------------------------*/
-        //POR NECESSITAR DE PASSAR MAIS DE UM PONTEIRO PARA A FUNÇÃO g_signal_connect
-        //HOUVE A NECESSIDADE DE CRIAR UM ESTRUTURA PARA COMPORTAR DOIS WIDGETS
+int main (int argc, char *argv[]){
+                /* g_slice_new aloca uma quantidade dinâmica de memória que será utilizada pela struct */
         Janela_Buffer *w = g_slice_new(Janela_Buffer);
 
         GtkWidget *barra_menu;
@@ -57,6 +67,7 @@ int main (int argc, char *argv[]){
         char *url_arquivo=NULL;
 
 
+
         gtk_init(&argc, &argv);
 
         w -> janela = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -74,9 +85,10 @@ int main (int argc, char *argv[]){
             88     `8'     88 88888888888 88      `888  `"Y8888Y"'  88888888P" d8'          `8b 88      `8b
 
         */
-        //CRIAÇÃO INICIALMENTE DA BARRA DE MENU
 
+        /* Criação da barra de menu. */
         barra_menu = gtk_menu_bar_new();
+        /* Criação de um grupo de atalhos. Ele identifica os atalhos já padrões */
         grupo_atalho = gtk_accel_group_new();
 
         arquivo = gtk_menu_item_new_with_mnemonic ("_Arquivo");
@@ -320,7 +332,7 @@ static void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado){
     abrir_dialogo = gtk_file_chooser_dialog_new("Abrir arquivo", GTK_WINDOW(dado->janela), GTK_FILE_CHOOSER_ACTION_OPEN, "Cancelar", GTK_RESPONSE_CANCEL, "Abrir", GTK_RESPONSE_ACCEPT,  NULL );
 
     if (gtk_dialog_run (GTK_DIALOG(abrir_dialogo)) == GTK_RESPONSE_ACCEPT ){
-        int i, j = 0, k;
+        int i, j = 0, k, contador = 0;
         char *file_path, *tmp, *file_name;
         file_path = gtk_file_chooser_get_filename_utf8(GTK_FILE_CHOOSER(abrir_dialogo));
 
@@ -331,6 +343,7 @@ static void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado){
                     for (j = b; j >= 0; j--){
                         if (file_path[j] != '\\'){
                             file_name [b-j] = file_path [j];
+                            contador++;
                             continue;
                         }else
                             break;
@@ -360,5 +373,3 @@ static void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado){
 
     gtk_widget_destroy(abrir_dialogo);
 }
-
-/*---------------------------------------------------------------------------------------------------------------*/

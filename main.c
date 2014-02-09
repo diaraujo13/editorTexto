@@ -10,40 +10,9 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
-    typedef struct {
-    GtkWidget* janela;
-    GtkTextBuffer *buffer_text;
-    } Janela_Buffer;
-
-
-    /* *********** MENU ARQUIVO *************** */
-    static void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado);
-    static void salvar_arquivo (GtkWidget *widget);
-    static void sair_app ();
-    static void imprimir ();
-    /* ************ MENU EDITAR ***************** */
-    void copiar();
-    void colar ();
-    static void desfazer(GtkWidget *widget, Janela_Buffer *dado);
-    static void refazer (GtkWidget *widget, Janela_Buffer *dado);
-    static void mudarFonte(GtkWidget *widget, Janela_Buffer *dado);
-    static void mudarCor (GtkWidget *widget, Janela_Buffer *dado);
-    static void uppercase (GtkWidget *widget, Janela_Buffer *dado);
-    static void lowcase (GtkWidget *widget, Janela_Buffer *dado);
-
-    /* *********** MENU BUSCA ******************* */
-    void procurarProximo(GtkWidget *widget, GtkTextBuffer *buffer_text);
-    void procurarAnterior(GtkWidget *widget, GtkTextBuffer *buffer_text);
-    void procurarPalavra(GtkWidget *widget, GtkTextBuffer *buffer_text);
-
-    /* *********** MENU AJUDA ******** */
-    static void exibirSobre(GtkWidget *widget, Janela_Buffer *dado);
-
-
-
-
-
-
+/* Declaração dos protótipos de função num arquivo de cabeçalho */
+#include "main.h"
+   
 int main (int argc, char *argv[]){
 
     /*---- UM PONTEIRO PARA UMA ESTRUTURA DE WIDGET ------------------------------------*/

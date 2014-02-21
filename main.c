@@ -1,16 +1,16 @@
-/*  
+/*
     main.c
 
     Copyright (C) 2014 Izaias Araújo <izaiasousa@gmail.com>
 
     Este arquivo é parte do programa e-Text
 
-    e-Text é um software livre; você pode redistribuí-lo e/ou 
-    modificá-lo dentro dos termos da Licença Pública Geral GNU como 
-    publicada pela Fundação do Software Livre (FSF); na versão 2 da 
+    e-Text é um software livre; você pode redistribuí-lo e/ou
+    modificá-lo dentro dos termos da Licença Pública Geral GNU como
+    publicada pela Fundação do Software Livre (FSF); na versão 2 da
     Licença, ou (na sua opinião) qualquer versão.
 
-    Este programa é distribuído na esperança de que possa ser  útil, 
+    Este programa é distribuído na esperança de que possa ser  útil,
     mas SEM NENHUMA GARANTIA; sem uma garantia implícita de ADEQUAÇÃO a qualquer
     MERCADO ou APLICAÇÃO EM PARTICULAR. Veja a Licença Pública Geral GNU para maiores detalhes.
 
@@ -38,15 +38,14 @@ int main (int argc, char *argv[]){
         GtkWidget *arquivo_sub, *editar_sub, *busca_sub, *ajuda_sub, *inserir_sub, *mm_sub;
     /*---------  ITENS QUE SERÃO ANEXADO AO SUBMENU CRIADO PARA O RESPECTIVO ITEM DE MENU DA BARRA DE MENU---------*/
         GtkWidget *novo, *abrir, *salvar, *salvar_como, *inserir_final, *inserir_comeco, *inserir_cursor, *sair;
-        GtkWidget *desfazer,*avancar, *cortar, *copiar, *colar, *selecionar, *fonte, *cor, *maiuscula, *minuscula;
+        GtkWidget *desfazer,*avancar, *cortar, *copiar, *colar,  *fonte, *maiuscula, *minuscula;
         GtkWidget *procurar, *substituir;
         GtkWidget *sobre, *doc;
     /*--------- SEPARADOR HORIZONTAL DOS MENU ITEM ------------*/
         GtkWidget *sep, *sep2;
     /* ---------- CRIAÇÃO DA BARRA DE FERRAMENTAS E SEUS ITENS ------*/
         GtkWidget *barra_ferramenta;
-        GtkToolItem *novo_ferramenta,
-                    *abrir_ferramenta,
+        GtkToolItem *novo_ferramenta,*abrir_ferramenta,
                     *salvar_ferramenta,
                     *inserir_ferramenta,
                     *separador_ferramenta,
@@ -54,19 +53,9 @@ int main (int argc, char *argv[]){
                     *recortar_ferramenta,
                     *colar_ferramenta;
 
-    /*--------- CRIAÇÃO DOS 'ACCELERATORS GROUP' PARA CADA ITEM DO MENU ---------*/
         GtkAccelGroup *grupo_atalho;
-    /*--------- LAYOUT ---------------*/
         GtkWidget *vertical_layout;
         GtkWidget *barra_rolagem;
-    /*--------- TEXT VIEW --------------*/
-        GtkWidget *field_text;
-
-
-    /*--------- VARIAVEIS DE CONTROLE ---*/
-        char *url_arquivo=NULL;
-
-
 
         gtk_init(&argc, &argv);
 
@@ -74,23 +63,33 @@ int main (int argc, char *argv[]){
         gtk_window_set_title(GTK_WINDOW (w->janela), "Novo documento");
         gtk_window_maximize(GTK_WINDOW (w->janela));
 
-        /*
-            88b           d88 88888888888 888b      88 88        88 88888888ba        db        88888888ba
-            888b         d888 88          8888b     88 88        88 88      "8b      d88b       88      "8b
-            88`8b       d8'88 88          88 `8b    88 88        88 88      ,8P     d8'`8b      88      ,8P
-            88 `8b     d8' 88 88aaaaa     88  `8b   88 88        88 88aaaaaa8P'    d8'  `8b     88aaaaaa8P'
-            88  `8b   d8'  88 88"""""     88   `8b  88 88        88 88""""""8b,   d8YaaaaY8b    88""""88'
-            88   `8b d8'   88 88          88    `8b 88 88        88 88      `8b  d8""""""""8b   88    `8b
-            88    `888'    88 88          88     `8888 Y8a.    .a8P 88      a8P d8'        `8b  88     `8b
-            88     `8'     88 88888888888 88      `888  `"Y8888Y"'  88888888P" d8'          `8b 88      `8b
 
-        */
+
+
+/*
+
+
+        `7MMM.     ,MMF'`7MM"""YMM  `7MN.   `7MF'`7MMF'   `7MF'`7MM"""Yp,      db      `7MM"""Mq.
+          MMMb    dPMM    MM    `7    MMN.    M    MM       M    MM    Yb     ;MM:       MM   `MM.
+          M YM   ,M MM    MM   d      M YMb   M    MM       M    MM    dP    ,V^MM.      MM   ,M9
+          M  Mb  M' MM    MMmmMM      M  `MN. M    MM       M    MM"""bg.   ,M  `MM      MMmmdM9
+          M  YM.P'  MM    MM   Y  ,   M   `MM.M    MM       M    MM    `Y   AbmmmqMA     MM  YM.
+          M  `YM'   MM    MM     ,M   M     YMM    YM.     ,M    MM    ,9  A'     VML    MM   `Mb.
+        .JML. `'  .JMML..JMMmmmmMMM .JML.    YM     `bmmmmd"'  .JMMmmmd9 .AMA.   .AMMA..JMML. .JMM.
+
+
+*/
 
         /* Criação da barra de menu. */
         barra_menu = gtk_menu_bar_new();
         /* Criação de um grupo de atalhos. Ele identifica os atalhos já padrões */
         grupo_atalho = gtk_accel_group_new();
+        /* Adiciona esse grupo de atalhos na janela principal. */
+        gtk_window_add_accel_group(GTK_WINDOW(w->janela), grupo_atalho);
 
+        /* Cada item de menu que será exibido na barra de menu.
+           Criado com um mnemonic, teclado de atalho para abrir o menu
+           e acessado através de ALT+ <tecla que procede o underline> */
         arquivo = gtk_menu_item_new_with_mnemonic ("_Arquivo");
         editar =  gtk_menu_item_new_with_mnemonic ("_Editar");
         busca =   gtk_menu_item_new_with_mnemonic ("_Buscar");
@@ -110,7 +109,7 @@ int main (int argc, char *argv[]){
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(editar), editar_sub);
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(busca), busca_sub);
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(ajuda), ajuda_sub);
-        /*
+/*
 
 
                     ,adPPYYba, 8b,dPPYba,  ,adPPYb,d8 88       88 88 8b       d8  ,adPPYba,
@@ -120,9 +119,7 @@ int main (int argc, char *argv[]){
                     `"8bbdP"Y8 88          `"YbbdP'88  `"YbbdP'Y8 88     "8"      `"YbbdP"'
                                                    88
                                                    88
-        */
-        //CRIAÇÃO DOS MENU ITENS DENTRO DO SUBMENU DOS ITENS DE MENU DA BARRA DE MENU
-        //DEPOIS "ANEXA-OS" AO 'MENU', JÁ QUE ESSE É UM FILHO DE MENU_SHELL
+*/
 
         novo = gtk_image_menu_item_new_from_stock (GTK_STOCK_NEW, grupo_atalho);
         abrir = gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN, grupo_atalho);
@@ -132,12 +129,16 @@ int main (int argc, char *argv[]){
         sep = gtk_separator_menu_item_new();
         sair =  gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, grupo_atalho);
 
-        //Quando o item de menu for clicado, uma função será chamada.
-        //Esse tipo de função é conhecida como <callback>
+        /*
+        Quando o item de menu for clicado, uma função será chamada.
+        Esse tipo de função é conhecida como <callback>
+        */
         g_signal_connect(G_OBJECT(abrir), "activate", G_CALLBACK(abrir_arquivo), (gpointer) w);
 
-        //Criação de um item de menu especial, que possuirá um menu embutido dentro dele.
-        //Dessa maneira, aparecerá uma seta indicando que o item de menu possui um menu.
+        /*
+        Criação de um item de menu especial, que possuirá um menu embutido dentro dele.
+        Dessa maneira, aparecerá uma seta indicando que o item de menu possui um menu.
+        */
         inserir_sub = gtk_menu_new();
         inserir_final = gtk_menu_item_new_with_label("Ao final");
         inserir_comeco = gtk_menu_item_new_with_label("Ao inicio");
@@ -147,8 +148,9 @@ int main (int argc, char *argv[]){
         gtk_menu_shell_append (GTK_MENU_SHELL(inserir_sub), inserir_cursor);
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(inserir), inserir_sub);
 
-        //Anexação dos itens de menu no nosso submenu "Arquivo"
-        // Barra de menu -> Menu Item -> SubMenu -> Menu Item
+        /*Anexação dos itens de menu no nosso submenu "Arquivo"
+         Barra de menu -> Menu Item -> SubMenu -> Menu Item
+        */
         gtk_menu_shell_append(GTK_MENU_SHELL(arquivo_sub), novo);
         gtk_menu_shell_append(GTK_MENU_SHELL(arquivo_sub), abrir);
         gtk_menu_shell_append(GTK_MENU_SHELL(arquivo_sub), salvar);
@@ -157,7 +159,7 @@ int main (int argc, char *argv[]){
         gtk_menu_shell_append(GTK_MENU_SHELL(arquivo_sub), sep);
         gtk_menu_shell_append(GTK_MENU_SHELL(arquivo_sub), sair);
 
-        /*
+/*
                                     88 88
                                     88 ""   ,d
                                     88      88
@@ -168,10 +170,12 @@ int main (int argc, char *argv[]){
                  `"Ybbd8"'  `"8bbdP"Y8 88   "Y888 `"8bbdP"Y8 88
 
 
-        */
+*/
 
-        //Instanciando dos Itens de Menu para o submenu do Item de Menu "Editar";
-        //Para se anexar Itens de Menu é necessário ter um Menu ou uma derivada;
+        /*
+        Instanciando dos Itens de Menu para o submenu do Item de Menu "Editar";
+        Para se anexar Itens de Menu é necessário ter um Menu ou uma derivada;
+        */
         sep2        =   gtk_separator_menu_item_new();
         desfazer    =   gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDO, grupo_atalho);
         avancar     =   gtk_image_menu_item_new_from_stock(GTK_STOCK_REDO, grupo_atalho);
@@ -179,9 +183,8 @@ int main (int argc, char *argv[]){
         cortar      =   gtk_image_menu_item_new_from_stock (GTK_STOCK_CUT, grupo_atalho);
         colar       =   gtk_image_menu_item_new_from_stock (GTK_STOCK_PASTE, grupo_atalho);
         fonte       =   gtk_image_menu_item_new_from_stock(GTK_STOCK_SELECT_FONT, grupo_atalho);
-        cor         =   gtk_image_menu_item_new_from_stock (GTK_STOCK_SELECT_COLOR, grupo_atalho);
 
-        // Criação de um submenu em um item de menu
+         /* Criação de um submenu em um item de menu /*/
         mm_item     =   gtk_menu_item_new_with_label ("Caixa Alta/Baixa");
         mm_sub = gtk_menu_new();
         maiuscula = gtk_menu_item_new_with_label ("Caixa Alta");
@@ -190,7 +193,7 @@ int main (int argc, char *argv[]){
         gtk_menu_shell_append(GTK_MENU_SHELL(mm_sub), minuscula);
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(mm_item), mm_sub);
 
-        //Adiciona os Itens de Menu no Submenu
+        /*/Adiciona os Itens de Menu no Submenu/*/
         gtk_menu_shell_append(GTK_MENU_SHELL(editar_sub), desfazer);
         gtk_menu_shell_append(GTK_MENU_SHELL(editar_sub), avancar);
         gtk_menu_shell_append(GTK_MENU_SHELL(editar_sub), copiar);
@@ -198,11 +201,10 @@ int main (int argc, char *argv[]){
         gtk_menu_shell_append(GTK_MENU_SHELL(editar_sub), colar);
         gtk_menu_shell_append(GTK_MENU_SHELL(editar_sub), sep2);
         gtk_menu_shell_append(GTK_MENU_SHELL(editar_sub), fonte);
-        gtk_menu_shell_append(GTK_MENU_SHELL(editar_sub), cor);
         gtk_menu_shell_append(GTK_MENU_SHELL(editar_sub), mm_item);
 
 
-        /*
+/*
 
                 88
                 88
@@ -213,14 +215,14 @@ int main (int argc, char *argv[]){
                 88b,   ,a8" "8a,   ,a88 aa    ]8I "8a,   ,aa 88,    ,88
                 8Y"Ybbd8"'   `"YbbdP'Y8 `"YbbdP"'  `"Ybbd8"' `"8bbdP"Y8
 
-        */
-        //Instanciação dos Itens de Menu do Submenu do Item de Menu "Busca"
+*/
+        /*/Instanciação dos Itens de Menu do Submenu do Item de Menu "Busca"/*/
         procurar = gtk_image_menu_item_new_from_stock(GTK_STOCK_FIND, grupo_atalho);
         substituir = gtk_image_menu_item_new_from_stock(GTK_STOCK_FIND_AND_REPLACE, grupo_atalho);
 
         gtk_menu_shell_append(GTK_MENU_SHELL(busca_sub), procurar);
         gtk_menu_shell_append(GTK_MENU_SHELL(busca_sub), substituir);
-    /*
+/*
 
 
                            88                      88
@@ -234,32 +236,34 @@ int main (int argc, char *argv[]){
                           ,88
                         888P"
 
-    */
-        //Instanciação dos Itens de Menu do Submenu do Item de Menu "Ajuda"
+*/
+        /*/Instanciação dos Itens de Menu do Submenu do Item de Menu "Ajuda"/*/
         sobre = gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT, grupo_atalho);
         doc = gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP, grupo_atalho);
 
-//        g_signal_connect(G_OBJECT(sobre))
+        g_signal_connect(G_OBJECT(sobre), "activate", G_CALLBACK(exibirSobre), NULL);
 
         gtk_menu_shell_append(GTK_MENU_SHELL(ajuda_sub), sobre);
         gtk_menu_shell_append(GTK_MENU_SHELL(ajuda_sub), doc);
 
 
-    /*
-        888888888888 ,ad8888ba,     ,ad8888ba,   88          88888888ba        db        88888888ba
-             88     d8"'    `"8b   d8"'    `"8b  88          88      "8b      d88b       88      "8b
-             88    d8'        `8b d8'        `8b 88          88      ,8P     d8'`8b      88      ,8P
-             88    88          88 88          88 88          88aaaaaa8P'    d8'  `8b     88aaaaaa8P'
-             88    88          88 88          88 88          88""""""8b,   d8YaaaaY8b    88""""88'
-             88    Y8,        ,8P Y8,        ,8P 88          88      `8b  d8""""""""8b   88    `8b
-             88     Y8a.    .a8P   Y8a.    .a8P  88          88      a8P d8'        `8b  88     `8b
-             88      `"Y8888Y"'     `"Y8888Y"'   88888888888 88888888P" d8'          `8b 88      `8b
-    */
+/*
+
+
+        MMP""MM""YMM   .g8""8q.     .g8""8q. `7MMF'      `7MM"""Yp,      db      `7MM"""Mq.
+        P'   MM   `7 .dP'    `YM. .dP'    `YM. MM          MM    Yb     ;MM:       MM   `MM.
+             MM      dM'      `MM dM'      `MM MM          MM    dP    ,V^MM.      MM   ,M9
+             MM      MM        MM MM        MM MM          MM"""bg.   ,M  `MM      MMmmdM9
+             MM      MM.      ,MP MM.      ,MP MM      ,   MM    `Y   AbmmmqMA     MM  YM.
+             MM      `Mb.    ,dP' `Mb.    ,dP' MM     ,M   MM    ,9  A'     VML    MM   `Mb.
+           .JMML.      `"bmmd"'     `"bmmd"' .JMMmmmmMMM .JMMmmmd9 .AMA.   .AMMA..JMML. .JMM.
+
+*/
 
 
  	barra_ferramenta = gtk_toolbar_new ();
 
-    //CRIA CADA BOTÃO DA BARRA DE FERRAMENTA COM UM RESPECTIVO ICONE (STOCK)
+    /*/CRIA CADA BOTÃO DA BARRA DE FERRAMENTA COM UM RESPECTIVO ICONE (STOCK)/*/
     novo_ferramenta     =   gtk_tool_button_new_from_stock(GTK_STOCK_NEW);
     abrir_ferramenta    =   gtk_tool_button_new_from_stock (GTK_STOCK_OPEN);
     salvar_ferramenta   =   gtk_tool_button_new_from_stock (GTK_STOCK_SAVE);
@@ -269,14 +273,19 @@ int main (int argc, char *argv[]){
     colar_ferramenta    =   gtk_tool_button_new_from_stock (GTK_STOCK_PASTE);
 	separador_ferramenta= gtk_separator_tool_item_new();
 
+    g_signal_connect(G_OBJECT(novo_ferramenta), "clicked", G_CALLBACK(criar_arquivo), (gpointer) w);
 	g_signal_connect(G_OBJECT(abrir_ferramenta), "clicked", G_CALLBACK(abrir_arquivo), (gpointer) w);
-    //SE NÃO FOR POSSÍVEL EXIBIR TODOS OS ÍCONES NA BARRA DE TAREFAS
-    //UMA SETA SERÁ MOSTRADO NO FINAL
+    g_signal_connect(G_OBJECT(salvar_ferramenta), "clicked", G_CALLBACK(salvar_arquivo), (gpointer) w);
+
+
+    /*/SE NÃO FOR POSSÍVEL EXIBIR TODOS OS ÍCONES NA BARRA DE TAREFAS
+    //UMA SETA SERÁ MOSTRADO NO FINAL/*/
     gtk_toolbar_set_show_arrow(GTK_TOOLBAR(barra_ferramenta), TRUE);
 
     gtk_toolbar_set_style(GTK_TOOLBAR(barra_ferramenta), GTK_TOOLBAR_ICONS);
 
-    //ADICIONA ESSES BOTÕES NA BARRA DE FERRAMENTAS
+    /* Adiciona cada botão já configurado, na barra de ferramentas.
+       Segue a ordem de inserção. s*/
     gtk_toolbar_insert (GTK_TOOLBAR(barra_ferramenta), novo_ferramenta, -1);
     gtk_toolbar_insert (GTK_TOOLBAR(barra_ferramenta), abrir_ferramenta, -1);
     gtk_toolbar_insert (GTK_TOOLBAR(barra_ferramenta), salvar_ferramenta, -1);
@@ -286,27 +295,41 @@ int main (int argc, char *argv[]){
     gtk_toolbar_insert (GTK_TOOLBAR(barra_ferramenta), recortar_ferramenta, -1);
     gtk_toolbar_insert (GTK_TOOLBAR(barra_ferramenta), colar_ferramenta, -1);
 
-    //ADICIONA EVENTOS
-	//g_signal_connect(G_OBJECT(novo_ferramenta), "clicked", G_CALLBACK(abrir_novo), )
-
-    /*-----------------------------------------------------------------------------------------------------------------*/
-    /*--------------------------------------------------------------------------------------------------------------*/
-    /*------------ TEXTVIEW & TEXTBUFFER -------------------------------------------------------------------------*/
 
 
-        field_text = gtk_text_view_new();
+/*
+        MMP""MM""YMM `7MM"""YMM  `YMM'   `MP'MMP""MM""YMM     `7MMF'   `7MF'`7MMF'`7MM"""YMM `7MMF'     A     `7MF'
+        P'   MM   `7   MM    `7    VMb.  ,P  P'   MM   `7       `MA     ,V    MM    MM    `7   `MA     ,MA     ,V
+             MM        MM   d       `MM.M'        MM             VM:   ,V     MM    MM   d      VM:   ,VVM:   ,V
+             MM        MMmmMM         MMb         MM              MM.  M'     MM    MMmmMM       MM.  M' MM.  M'
+             MM        MM   Y  ,    ,M'`Mb.       MM              `MM A'      MM    MM   Y  ,    `MM A'  `MM A'
+             MM        MM     ,M   ,P   `MM.      MM               :MM;       MM    MM     ,M     :MM;    :MM;
+           .JMML.    .JMMmmmmMMM .MM:.  .:MMa.  .JMML.              VF      .JMML..JMMmmmmMMM      VF      VF
+*/
+
+        /* Criação do TextView */
+        w->text_view= gtk_text_view_new();
+        gtk_text_view_set_wrap_mode(w->text_view, GTK_WRAP_WORD);
 
         barra_rolagem = gtk_scrolled_window_new(NULL, NULL);
         gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(barra_rolagem), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+        gtk_container_add (GTK_CONTAINER(barra_rolagem), w->text_view);
 
-        gtk_container_add (GTK_CONTAINER(barra_rolagem), field_text);
-        // Instanciando um GtkTextBuffer para manipularo  texto presente no GtkWidget *field_text;
-        w -> buffer_text = gtk_text_view_get_buffer(GTK_TEXT_VIEW(field_text));
+        /* Instanciando um GtkTextBuffer para manipular o  texto presente no GtkWidget *field_text; */
+        w -> buffer_text = gtk_text_view_get_buffer(GTK_TEXT_VIEW(w->text_view));
+        g_signal_connect(G_OBJECT(w->buffer_text), "changed", G_CALLBACK(defina_buffer_modificado), (gpointer) w);
 
+/*
 
-    /*--------------------------------------------------------------------------------------------------------------------*/
-    /*-------------------------------------------------------------------------------------------------------------*/
-    /*----------- ORGANIZAÇÃO DOS ITENS NA VERTICAL BOX LAYOUT E ANEXANDO-O AO CONTAINER PRINCIPAL -----------------*/
+            `7MMF'            db   `YMM'   `MM' .g8""8q. `7MMF'   `7MF'MMP""MM""YMM
+              MM             ;MM:    VMA   ,V .dP'    `YM. MM       M  P'   MM   `7
+              MM            ,V^MM.    VMA ,V  dM'      `MM MM       M       MM
+              MM           ,M  `MM     VMMP   MM        MM MM       M       MM
+              MM      ,    AbmmmqMA     MM    MM.      ,MP MM       M       MM
+              MM     ,M   A'     VML    MM    `Mb.    ,dP' YM.     ,M       MM
+            .JMMmmmmMMM .AMA.   .AMMA..JMML.    `"bmmd"'    `bmmmmd"'     .JMML.
+
+*/
 
     vertical_layout = gtk_vbox_new(FALSE, 0);
 
@@ -316,60 +339,229 @@ int main (int argc, char *argv[]){
 
     gtk_container_add(GTK_CONTAINER(w->janela), vertical_layout);
     g_signal_connect(G_OBJECT(w->janela), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    /* Antes da janela ser destruída, há uma verificação sobre o arquivo, se ele está salvo ou não.
+    g_signal_connect(G_OBJECT(w->janela), "delete-event", G_CALLBACK(on_window_delete_event), (gpointer) w);*/
     gtk_widget_show_all(w->janela);
 
     gtk_main();
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
+/*
+                                                    ,og.  ,
+                                                           "  `6o"
+        `7MM"""YMM `7MMF'   `7MF'`7MN.   `7MF' .g8"""bgd   .g8""8q. `7MM"""YMM   .M"""bgd
+          MM    `7   MM       M    MMN.    M .dP'     `M .dP'    `YM. MM    `7  ,MI    "Y
+          MM   d     MM       M    M YMb   M dM'       ` dM'      `MM MM   d    `MMb.
+          MM""MM     MM       M    M  `MN. M MM          MM        MM MMmmMM      `YMMNq.
+          MM   Y     MM       M    M   `MM.M MM.         MM.      ,MP MM   Y  , .     `MM
+          MM         YM.     ,M    M     YMM `Mb.     ,' `Mb.    ,dP' MM     ,M Mb     dM
+        .JMML.        `bmmmmd"'  .JML.    YM   `"bmmmd'    `"bmmd"' .JMMmmmmMMM P"Ybmmd"
+                                                  bog
+                                                   od
+*/
 
-/*---------------------------------------------------------------------------------------------------------------*/
 
-static void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado){
+/* Chamada para criar um novo arquivo. Checa, primeiramente, se há algum arquivo aberto */
+void criar_arquivo (GtkWidget *widget, Janela_Buffer *dado){
 
-    GtkWidget *abrir_dialogo;
+/*
+    if (buffer_modificado(dado)){
+      if (caixa_confirmacao(dado)){
+            filename = dado->filename;
+            conteudo = dado->texto;
+            pre_salvar(dado->filename,conteudo);
+      }
+    }
+*/
+
+    gboolean a = caixa_confirmacao(dado);
+
+
+    dado->buffer_text = gtk_text_view_get_buffer(GTK_TEXT_VIEW(dado->text_view));
+    gtk_text_buffer_set_text(dado->buffer_text, "", -1);
+    defina_buffer_modificado(widget, dado);
+
+    g_free(dado->texto);
+    g_free(dado->filename);
+
+    dado->texto = NULL;
+    dado->filename = NULL;
+
+}
+
+/* Chamada para abrir um arquivo que o usuário selecionará
+pela caixa de dialógo (GtkFileChooserDialog) e então
+carregá-lo no buffer do TextView. */
+
+void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado){
+
+    /* Armazena informações de erro. Instanciada inicialmente como NULL, pois,
+    se não receber nenhuma mensagem de erro durante o programa ela se manterá
+    nula. */
+    GError      *erro = NULL;
+    GtkWidget   *abrir_dialogo;
+    gchar       *texto_arquivo;
+    /* Verificar se o arquivo foi aberto com sucesso! */
+    gboolean    resultado;
+
+
     abrir_dialogo = gtk_file_chooser_dialog_new("Abrir arquivo", GTK_WINDOW(dado->janela), GTK_FILE_CHOOSER_ACTION_OPEN, "Cancelar", GTK_RESPONSE_CANCEL, "Abrir", GTK_RESPONSE_ACCEPT,  NULL );
 
-    if (gtk_dialog_run (GTK_DIALOG(abrir_dialogo)) == GTK_RESPONSE_ACCEPT ){
-        int i, j = 0, k, contador = 0;
-        char *file_path, *tmp, *file_name;
-        file_path = gtk_file_chooser_get_filename_utf8(GTK_FILE_CHOOSER(abrir_dialogo));
+    if (gtk_dialog_run (GTK_DIALOG(abrir_dialogo)) == GTK_RESPONSE_ACCEPT )
+        dado->filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(abrir_dialogo));
+
+    gtk_widget_destroy(abrir_dialogo);
+
+    /* Pega o conteúdo do arquivo e coloca-o na variável texto_arquivo.
+       Retorna um valor booleano, dependendo do sucesso em passar o conteúdo para a variável.
+       Se não conseguir, a última variável receberá um de erro.
+    */
+    resultado = g_file_get_contents(dado->filename, &texto_arquivo, NULL , NULL);
+
+    gtk_widget_set_sensitive (dado->text_view, FALSE);
+    gtk_text_buffer_set_text(dado->buffer_text, texto_arquivo,-1);
+    gtk_widget_set_sensitive (dado->text_view, TRUE);
+
+    defina_buffer_salvo (widget, dado);
+
+}
+
+/* Se o buffer for salvo em disco, então defina como FALSE */
+void defina_buffer_salvo (Janela_Buffer *w, char *caminho_arquivo){
+    gtk_text_buffer_set_modified(w->buffer_text, FALSE);
+    w->filename = caminho_arquivo;
+    gtk_window_set_title(GTK_WINDOW(w->janela), w->filename);
+}
+
+/* Chamado quando o texto do GtkBufferText foi "changed" para definir como verdadeiro
+    em seu método gtk_text_buffer_set_modified */
+void defina_buffer_modificado (GtkWidget *widget, Janela_Buffer *w){
+    gtk_text_buffer_set_modified(w->buffer_text, TRUE);
+    gtk_window_set_title(GTK_WINDOW(w->janela), "****");
+}
+
+/*  Verifica o estado (modificado/não modificado) do GtkBufferTextAtual para assim
+    decidir se irá salvar o arquivo ou não. */
+gboolean buffer_modificado (Janela_Buffer *w){
+
+        /* Caso verdadeiro, foi modificado, mas não salvo. */
+        if (gtk_text_buffer_get_modified(w->buffer_text)) return TRUE;
+        /* Caso falso, está salvo. */
+        if (gtk_text_buffer_get_modified(w->buffer_text) == FALSE) return FALSE;
+}
+
+/* Verifica se o arquivo aberto possui um caminho.
+   Caso o seu caminho estaja vazio, então retorna falso, signficando que ele é um arquivo novo. */
+gboolean possui_filename (Janela_Buffer *w){
+
+    if ( w->filename != NULL )  return FALSE;
+    else return TRUE;
+
+}
+
+/*
+  Dialogo de confirmação, sendo chamado quando o usuário deseja sair do arquivo.
+*/
+gboolean caixa_confirmacao (Janela_Buffer *w){
+
+    GtkWidget *dialogo;
+
+    dialogo = gtk_dialog_new_with_buttons ("Arquivo não salvo. Deseja salvá-lo?",
+                                      GTK_WINDOW(w->janela),
+                                      GTK_DIALOG_MODAL,
+                                       "Sim", GTK_RESPONSE_ACCEPT,
+                                       "Não", GTK_RESPONSE_CANCEL);
+
+    if (gtk_dialog_run(dialogo) == GTK_RESPONSE_ACCEPT ){
+            gtk_widget_destroy(dialogo);
+            return TRUE;
+    }else{
+            gtk_widget_destroy(dialogo);
+            return FALSE;
+    }
+
+}
+
+/*
+    Método que abstrai todas as operações de verificação sobre o arquivo,
+    fazendo apenas a gravação de um conteúdo num arquivo. */
+void salvar (char* nome_arquivo, char* conteudo, Janela_Buffer *w){
 
 
-        for (i = 0; i <= strlen(file_path); i++){
-        if (file_path[i] == '.'){
-                    int b = i-1;
-                    for (j = b; j >= 0; j--){
-                        if (file_path[j] != '\\'){
-                            file_name [b-j] = file_path [j];
-                            contador++;
-                            continue;
-                        }else
-                            break;
+    GError *msg_erro;
+    gboolean resultado;
 
+    resultado = g_file_set_contents(nome_arquivo, conteudo, -1, &msg_erro);
+    defina_buffer_salvo(w, nome_arquivo);
 
-                    }
+    g_free (conteudo);
+    g_free (nome_arquivo);
+    g_free (resultado);
+}
 
-                }
+void salvar_arquivo (GtkWidget *widget, Janela_Buffer *dado){
+
+        char        *caminho_arquivo;
+        char        *texto;
+        GtkTextIter *inicio;
+        GtkTextIter *final;
+
+        gtk_text_buffer_get_start_iter (dado->buffer_text, inicio);
+        gtk_text_buffer_get_start_iter (dado->buffer_text, final);
+
+        /* Retorna uma cadeia de caracteres UTF-8 */
+        texto = gtk_text_buffer_get_text (dado->buffer_text, inicio, final, FALSE);
+
+        if (buffer_modificado(dado->buffer_text) == TRUE){
+            if (possui_filename(dado)==TRUE)
+                salvar(dado->filename, texto, dado);
+            else{
+
+                dialogo_salvar(dado, caminho_arquivo);
+                salvar(caminho_arquivo, texto, dado);
+
+            }
         }
 
 
 
-        //for (k = strlen(file_name); k >= 0; k--)
-//          //  tmp[strlen(file_name)-k] = file_name[k];
-//        int w = 0;
-//        int b = (int) strlen(file_name);
-//        while (file_name[w]!='\0'){
-//            tmp[w] = file_name[b-w];
-//            w++;
-//
-//        }
+}
 
-		gtk_text_buffer_set_text(GTK_TEXT_BUFFER(dado->buffer_text), file_name,-1);
-        gtk_window_set_title(GTK_WINDOW(dado->janela), file_name);
-     //  mudarTexto(file_path);
+/*
+    Abre um dialogo aonde o usuário define o nome do arquivo e onde o salvará.
+*/
+
+void dialogo_salvar(Janela_Buffer *dado, char* caminho_arquivo){
+
+    GtkWidget *dialog;
+
+    dialog = gtk_file_chooser_dialog_new("Salvar arquivo", GTK_WINDOW(dado->janela), GTK_FILE_CHOOSER_ACTION_SAVE, "Cancelar", GTK_RESPONSE_CANCEL, "Salvar", GTK_RESPONSE_ACCEPT, NULL);
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT){
+        /* Armazena aonde o arquivo será salvo */
+        caminho_arquivo = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
     }
 
-    gtk_widget_destroy(abrir_dialogo);
+    gtk_widget_destroy(dialog);
+
+}
+void exibirSobre(GtkWidget *widget){
+
+        const gchar *comentario = "Simples e leve editor de texto para Windows.";
+
+        /* Utilização de um widget GtkAboutDialog para mostrar informações sobre o programa */
+        GtkWidget *sobre_dialogo = gtk_about_dialog_new();
+
+        gtk_about_dialog_set_name (GTK_ABOUT_DIALOG(sobre_dialogo), "e-Text");
+        gtk_about_dialog_set_version (GTK_ABOUT_DIALOG(sobre_dialogo), "1.0.0");
+        gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG(sobre_dialogo), "Copyright (C) 2014 ");
+        gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG(sobre_dialogo), comentario);
+        gtk_about_dialog_set_license (GTK_ABOUT_DIALOG (sobre_dialogo), "Licença Pública Geral GNU");
+
+
+        gtk_dialog_run(GTK_DIALOG(sobre_dialogo));
+
+        gtk_widget_destroy(sobre_dialogo);
 }

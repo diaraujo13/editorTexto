@@ -333,6 +333,22 @@ int main (int argc, char *argv[]){
 
     vertical_layout = gtk_vbox_new(FALSE, 0);
 
+
+
+    branco.red = 16448;
+    branco.green = 16448;
+    branco.blue = 16448;
+
+    cinza_claro.red = 20000;
+    cinza_claro.green = 20000;
+    cinza_claro.blue =20000;
+
+
+
+    gtk_widget_modify_bg (barra_menu, GTK_STATE_NORMAL, &branco);
+    gtk_widget_modify_bg (barra_ferramenta, GTK_STATE_NORMAL, &cinza_claro );
+    gtk_widget_modify_bg (w->janela, GTK_STATE_NORMAL, &cinza_claro );
+
     gtk_box_pack_start(GTK_BOX(vertical_layout), barra_menu, FALSE, TRUE, 0);
     gtk_box_pack_start (GTK_BOX(vertical_layout), barra_ferramenta, FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(vertical_layout), barra_rolagem, TRUE , TRUE, 0);

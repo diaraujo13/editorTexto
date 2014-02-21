@@ -22,37 +22,68 @@
 #ifndef MAIN_H_INCLUDED /* Código só será importado se ele não estiver definido */
 #define MAIN_H_INCLUDED /* Caso não esteja definido, então "define" */
 
-typedef struct {
+    typedef struct {
 
-    GtkWidget* janela;
-    GtkTextBuffer *buffer_text;
+        GtkWidget           *janela;
+        GtkTextBuffer       *buffer_text;
+        GtkWidget           *text_view;
+        char                *filename;
+        char                *texto;
 
-} Janela_Buffer;
+        /* 0 - Salvo
+           1 - Não Salvo
+        */
+        int                 *arquivo_status;
+    } Janela_Buffer;
 
 
 /* Protótipos de funções dos respectivos itens de cada menu! */
-/* Menu Arquivo */
-    static void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado);
-    static void salvar_arquivo (GtkWidget *widget);
-    static void sair_app ();
-    static void imprimir ();
+/* Operação com Arquivos */
 
-/* Menu Editar*/
+
+
+    gboolean buffer_modificado (Janela_Buffer *w);
+    void defina_buffer_salvo (Janela_Buffer *w, char *caminho_arquivo);
+    void defina_buffer_modificado (GtkWidget *widget, Janela_Buffer *w);
+    gboolean possui_filename (Janela_Buffer *w);
+    gboolean caixa_confirmacao (Janela_Buffer *w);
+    void salvar (char* nome_arquivo, char* conteudo, Janela_Buffer *w);
+    void salvar_arquivo (GtkWidget *widget, Janela_Buffer *dado);
+    void dialogo_salvar(Janela_Buffer *dado, char* caminho_arquivo);
+
+
+    void criar_arquivo (GtkWidget *widget, Janela_Buffer *dado);
+    void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado);
+    void salvar_arquivo (GtkWidget *widget, Janela_Buffer *dado);
+    gboolean checar_modificacao (GtkWidget *widget, Janela_Buffer *dado);
+    void modificado_arquivo (GtkWidget *widge, Janela_Buffer *dado);
+    void on_window_delete_event (GtkWidget *widget, Janela_Buffer *dado);
+
+
+/*
+    void resetar_arquivo (GtkWidget *widget, Janela_Buffer *dado);
+    void sair_app ();
+    void imprimir ();
+
+ Menu Editar
     void copiar();
     void colar ();
     static void desfazer(GtkWidget *widget, Janela_Buffer *dado);
     static void refazer (GtkWidget *widget, Janela_Buffer *dado);
     static void mudarFonte(GtkWidget *widget, Janela_Buffer *dado);
-    static void mudarCor (GtkWidget *widget, Janela_Buffer *dado);
     static void uppercase (GtkWidget *widget, Janela_Buffer *dado);
     static void lowcase (GtkWidget *widget, Janela_Buffer *dado);
 
-/* Menu Busca */
+ Menu Busca
     void procurarProximo(GtkWidget *widget, GtkTextBuffer *buffer_text);
     void procurarAnterior(GtkWidget *widget, GtkTextBuffer *buffer_text);
-    void procurarPalavra(GtkWidget *widget, GtkTextBuffer *buffer_text);
+    void procurarPalavra(GtkWidget *widget, GtkTextBuffer *buffer_text); */
 
 /* Menu Ajuda */
-    static void exibirSobre(GtkWidget *widget, Janela_Buffer *dado);
+    void exibirSobre(GtkWidget *widget);
+    void exibirAjuda(GtkWidget *widget);
+
+/* Miscelânea */
+    void mostrar_erro (GtkWidget *widget, GError *erro);
 
 #endif /* Fim da verificação :-) */

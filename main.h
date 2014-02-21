@@ -37,10 +37,9 @@
     } Janela_Buffer;
 
 
+
 /* Protótipos de funções dos respectivos itens de cada menu! */
 /* Operação com Arquivos */
-
-
 
     gboolean buffer_modificado (Janela_Buffer *w);
     void defina_buffer_salvo (Janela_Buffer *w, char *caminho_arquivo);
@@ -85,5 +84,13 @@
 
 /* Miscelânea */
     void mostrar_erro (GtkWidget *widget, GError *erro);
+
+/*
+    Cores utilizadas.
+    Cada nível de cor RGB é definida através de sua intensidade, que varia de 0 a 65535.
+*/
+
+    GdkColor branco;
+    GdkColor cinza_claro;
 
 #endif /* Fim da verificação :-) */

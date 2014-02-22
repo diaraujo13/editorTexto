@@ -29,11 +29,6 @@
         GtkWidget           *text_view;
         char                *filename;
         char                *texto;
-
-        /* 0 - Salvo
-           1 - Não Salvo
-        */
-        int                 *arquivo_status;
     } Janela_Buffer;
 
 
@@ -41,6 +36,9 @@
 /* Protótipos de funções dos respectivos itens de cada menu! */
 /* Operação com Arquivos */
 
+    void tst (GtkWidget *widget, Janela_Buffer *dado);
+
+    void tsta (GtkWidget *widget, Janela_Buffer *dado);
     gboolean buffer_modificado (Janela_Buffer *w);
     void defina_buffer_salvo (Janela_Buffer *w, char *caminho_arquivo);
     void defina_buffer_modificado (GtkWidget *widget, Janela_Buffer *w);
@@ -48,8 +46,9 @@
     gboolean caixa_confirmacao (Janela_Buffer *w);
     void salvar (char* nome_arquivo, char* conteudo, Janela_Buffer *w);
     void salvar_arquivo (GtkWidget *widget, Janela_Buffer *dado);
-    void dialogo_salvar(Janela_Buffer *dado, char* caminho_arquivo);
+    void dialogo_salvar(Janela_Buffer *dado, char* texto);
 
+void on_window_delete_event (GtkWidget *widget, Janela_Buffer *dado);
 
     void criar_arquivo (GtkWidget *widget, Janela_Buffer *dado);
     void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado);

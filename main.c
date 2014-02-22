@@ -29,6 +29,8 @@
 int main (int argc, char *argv[]){
                 /* g_slice_new aloca uma quantidade dinâmica de memória que será utilizada pela struct */
         Janela_Buffer *w = g_slice_new(Janela_Buffer);
+        w->filename = NULL;
+        w->texto = NULL;
 
         GtkWidget *barra_menu;
 
@@ -276,6 +278,8 @@ int main (int argc, char *argv[]){
     g_signal_connect(G_OBJECT(novo_ferramenta), "clicked", G_CALLBACK(criar_arquivo), (gpointer) w);
 	g_signal_connect(G_OBJECT(abrir_ferramenta), "clicked", G_CALLBACK(abrir_arquivo), (gpointer) w);
     g_signal_connect(G_OBJECT(salvar_ferramenta), "clicked", G_CALLBACK(salvar_arquivo), (gpointer) w);
+    g_signal_connect(G_OBJECT(inserir_ferramenta), "clicked", G_CALLBACK(tst), (gpointer) w);
+    g_signal_connect(G_OBJECT(copiar_ferramenta), "clicked", G_CALLBACK(tsta), (gpointer) w);
 
 
     /*/SE NÃO FOR POSSÍVEL EXIBIR TODOS OS ÍCONES NA BARRA DE TAREFAS
@@ -309,7 +313,7 @@ int main (int argc, char *argv[]){
 
         /* Criação do TextView */
         w->text_view= gtk_text_view_new();
-        gtk_text_view_set_wrap_mode(w->text_view, GTK_WRAP_WORD);
+        gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(w->text_view), GTK_WRAP_WORD);
 
         barra_rolagem = gtk_scrolled_window_new(NULL, NULL);
         gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(barra_rolagem), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
@@ -354,9 +358,10 @@ int main (int argc, char *argv[]){
     gtk_box_pack_start(GTK_BOX(vertical_layout), barra_rolagem, TRUE , TRUE, 0);
 
     gtk_container_add(GTK_CONTAINER(w->janela), vertical_layout);
-    g_signal_connect(G_OBJECT(w->janela), "destroy", G_CALLBACK(gtk_main_quit), NULL);
-    /* Antes da janela ser destruída, há uma verificação sobre o arquivo, se ele está salvo ou não.
-    g_signal_connect(G_OBJECT(w->janela), "delete-event", G_CALLBACK(on_window_delete_event), (gpointer) w);*/
+
+    /* Antes da janela ser destruída, há uma verificação sobre o arquivo, se ele está salvo ou não.*/
+    g_signal_connect(G_OBJECT(w->janela), "delete-event", G_CALLBACK(on_window_delete_event), (gpointer) w);
+
     gtk_widget_show_all(w->janela);
 
     gtk_main();
@@ -382,20 +387,25 @@ int main (int argc, char *argv[]){
 /* Chamada para criar um novo arquivo. Checa, primeiramente, se há algum arquivo aberto */
 void criar_arquivo (GtkWidget *widget, Janela_Buffer *dado){
 
-/*
-    if (buffer_modificado(dado)){
+
+    if (gtk_text_buffer_get_modified(dado->buffer_text)==TRUE){
       if (caixa_confirmacao(dado)){
-            filename = dado->filename;
-            conteudo = dado->texto;
-            pre_salvar(dado->filename,conteudo);
+          salvar_arquivo(widget, dado);
       }
     }
-*/
-
-    gboolean a = caixa_confirmacao(dado);
 
 
-    dado->buffer_text = gtk_text_view_get_buffer(GTK_TEXT_VIEW(dado->text_view));
+    GtkTextIter inicio;
+    GtkTextIter final;
+
+    gtk_text_buffer_get_start_iter (dado->buffer_text, &inicio);
+    gtk_text_buffer_get_end_iter (dado->buffer_text, &final);
+
+    gtk_text_buffer_delete (dado->buffer_text, &inicio, &final);
+
+    /*dado->buffer_text = gtk_text_view_get_buffer(GTK_TEXT_VIEW(dado->text_view));
+    */
+
     gtk_text_buffer_set_text(dado->buffer_text, "", -1);
     defina_buffer_modificado(widget, dado);
 
@@ -440,7 +450,7 @@ void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado){
     gtk_text_buffer_set_text(dado->buffer_text, texto_arquivo,-1);
     gtk_widget_set_sensitive (dado->text_view, TRUE);
 
-    defina_buffer_salvo (widget, dado);
+    defina_buffer_salvo (dado, dado->filename);
 
 }
 
@@ -458,22 +468,13 @@ void defina_buffer_modificado (GtkWidget *widget, Janela_Buffer *w){
     gtk_window_set_title(GTK_WINDOW(w->janela), "****");
 }
 
-/*  Verifica o estado (modificado/não modificado) do GtkBufferTextAtual para assim
-    decidir se irá salvar o arquivo ou não. */
-gboolean buffer_modificado (Janela_Buffer *w){
-
-        /* Caso verdadeiro, foi modificado, mas não salvo. */
-        if (gtk_text_buffer_get_modified(w->buffer_text)) return TRUE;
-        /* Caso falso, está salvo. */
-        if (gtk_text_buffer_get_modified(w->buffer_text) == FALSE) return FALSE;
-}
-
 /* Verifica se o arquivo aberto possui um caminho.
    Caso o seu caminho estaja vazio, então retorna falso, signficando que ele é um arquivo novo. */
 gboolean possui_filename (Janela_Buffer *w){
 
-    if ( w->filename != NULL )  return FALSE;
-    else return TRUE;
+    if ( w->filename != NULL )
+        return TRUE;
+    else return FALSE;
 
 }
 
@@ -490,7 +491,7 @@ gboolean caixa_confirmacao (Janela_Buffer *w){
                                        "Sim", GTK_RESPONSE_ACCEPT,
                                        "Não", GTK_RESPONSE_CANCEL);
 
-    if (gtk_dialog_run(dialogo) == GTK_RESPONSE_ACCEPT ){
+    if (gtk_dialog_run(GTK_DIALOG(dialogo)) == GTK_RESPONSE_ACCEPT ){
             gtk_widget_destroy(dialogo);
             return TRUE;
     }else{
@@ -506,42 +507,42 @@ gboolean caixa_confirmacao (Janela_Buffer *w){
 void salvar (char* nome_arquivo, char* conteudo, Janela_Buffer *w){
 
 
-    GError *msg_erro;
+    printf("\n>>>>>>>>>> Salvar");
+
     gboolean resultado;
 
-    resultado = g_file_set_contents(nome_arquivo, conteudo, -1, &msg_erro);
+    resultado = g_file_set_contents(nome_arquivo, conteudo, -1, NULL);
+
+    printf("%d", resultado);
+    printf("\n>>>>>>>>>>Resultado");
     defina_buffer_salvo(w, nome_arquivo);
 
-    g_free (conteudo);
-    g_free (nome_arquivo);
-    g_free (resultado);
+    printf("\n>>>>>>>>>>Já salvou Salvar");
+
 }
 
 void salvar_arquivo (GtkWidget *widget, Janela_Buffer *dado){
 
         char        *caminho_arquivo;
-        char        *texto;
-        GtkTextIter *inicio;
-        GtkTextIter *final;
+        gchar        *texto;
+        GtkTextIter inicio;
+        GtkTextIter final;
 
-        gtk_text_buffer_get_start_iter (dado->buffer_text, inicio);
-        gtk_text_buffer_get_start_iter (dado->buffer_text, final);
+        gtk_text_buffer_get_start_iter (dado->buffer_text, &inicio);
+        gtk_text_buffer_get_end_iter (dado->buffer_text, &final);
 
         /* Retorna uma cadeia de caracteres UTF-8 */
-        texto = gtk_text_buffer_get_text (dado->buffer_text, inicio, final, FALSE);
+        texto = gtk_text_buffer_get_text (dado->buffer_text, &inicio, &final, FALSE);
 
-        if (buffer_modificado(dado->buffer_text) == TRUE){
+        if (gtk_text_buffer_get_modified(dado->buffer_text) == TRUE){
             if (possui_filename(dado)==TRUE)
                 salvar(dado->filename, texto, dado);
             else{
 
-                dialogo_salvar(dado, caminho_arquivo);
-                salvar(caminho_arquivo, texto, dado);
+                dialogo_salvar(dado, texto);
 
             }
         }
-
-
 
 }
 
@@ -549,20 +550,61 @@ void salvar_arquivo (GtkWidget *widget, Janela_Buffer *dado){
     Abre um dialogo aonde o usuário define o nome do arquivo e onde o salvará.
 */
 
-void dialogo_salvar(Janela_Buffer *dado, char* caminho_arquivo){
+void dialogo_salvar(Janela_Buffer *dado, char* texto){
 
+    printf("\n>>>>>>>>>>Dialogo Salvar");
     GtkWidget *dialog;
+    char *caminho_arquivo;
 
     dialog = gtk_file_chooser_dialog_new("Salvar arquivo", GTK_WINDOW(dado->janela), GTK_FILE_CHOOSER_ACTION_SAVE, "Cancelar", GTK_RESPONSE_CANCEL, "Salvar", GTK_RESPONSE_ACCEPT, NULL);
 
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT){
         /* Armazena aonde o arquivo será salvo */
         caminho_arquivo = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        dado->filename = caminho_arquivo;
+        salvar(caminho_arquivo, texto, dado);
     }
+
 
     gtk_widget_destroy(dialog);
 
 }
+
+void tst (GtkWidget *widget, Janela_Buffer *dado){
+
+    if (possui_filename (dado) == TRUE ){
+        gtk_text_buffer_set_text(dado->buffer_text, dado->filename, -1);
+    }
+
+    if (possui_filename (dado) == FALSE ){
+        gtk_text_buffer_set_text(dado->buffer_text, "NULO",  -1);
+    }
+}
+
+void tsta (GtkWidget *widget, Janela_Buffer *dado){
+
+    if (gtk_text_buffer_get_modified(dado->buffer_text) == TRUE ){
+
+            gtk_text_buffer_set_text(GTK_TEXT_BUFFER(dado->buffer_text), "MODIFICADO", -1);
+    }
+
+
+    if (gtk_text_buffer_get_modified(dado->buffer_text) == FALSE ){
+
+            gtk_text_buffer_set_text(GTK_TEXT_BUFFER(dado->buffer_text), "NAO MODIFICADO", -1);
+    }
+}
+
+void on_window_delete_event (GtkWidget *widget, Janela_Buffer *dado){
+
+    salvar_arquivo (widget, dado);
+
+
+    printf("Chegou antes do main quit");
+    gtk_main_quit();
+
+}
+
 void exibirSobre(GtkWidget *widget){
 
         const gchar *comentario = "Simples e leve editor de texto para Windows.";
@@ -581,3 +623,4 @@ void exibirSobre(GtkWidget *widget){
 
         gtk_widget_destroy(sobre_dialogo);
 }
+

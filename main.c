@@ -135,20 +135,27 @@ int main (int argc, char *argv[]){
         Quando o item de menu for clicado, uma função será chamada.
         Esse tipo de função é conhecida como <callback>
         */
+        g_signal_connect(G_OBJECT(novo), "activate", G_CALLBACK(criar_arquivo), (gpointer) w);
         g_signal_connect(G_OBJECT(abrir), "activate", G_CALLBACK(abrir_arquivo), (gpointer) w);
+        g_signal_connect(G_OBJECT(salvar), "activate", G_CALLBACK(salvar_arquivo), (gpointer) w);
+        g_signal_connect(G_OBJECT(sair), "activate", G_CALLBACK(on_window_delete_event), (gpointer) w);
 
         /*
         Criação de um item de menu especial, que possuirá um menu embutido dentro dele.
         Dessa maneira, aparecerá uma seta indicando que o item de menu possui um menu.
         */
         inserir_sub = gtk_menu_new();
+
         inserir_final = gtk_menu_item_new_with_label("Ao final");
         inserir_comeco = gtk_menu_item_new_with_label("Ao inicio");
         inserir_cursor = gtk_menu_item_new_with_label ("Ao cursor");
+
         gtk_menu_shell_append (GTK_MENU_SHELL(inserir_sub), inserir_comeco);
         gtk_menu_shell_append (GTK_MENU_SHELL(inserir_sub), inserir_final);
         gtk_menu_shell_append (GTK_MENU_SHELL(inserir_sub), inserir_cursor);
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(inserir), inserir_sub);
+
+
 
         /*Anexação dos itens de menu no nosso submenu "Arquivo"
          Barra de menu -> Menu Item -> SubMenu -> Menu Item
@@ -160,6 +167,10 @@ int main (int argc, char *argv[]){
         gtk_menu_shell_append(GTK_MENU_SHELL(arquivo_sub), inserir);
         gtk_menu_shell_append(GTK_MENU_SHELL(arquivo_sub), sep);
         gtk_menu_shell_append(GTK_MENU_SHELL(arquivo_sub), sair);
+
+        g_signal_connect(G_OBJECT(inserir_comeco), "activate", G_CALLBACK(inserir_no_comeco), (gpointer) w);
+        g_signal_connect(G_OBJECT(inserir_final), "activate", G_CALLBACK(inserir_no_final), (gpointer) w);
+        g_signal_connect(G_OBJECT(inserir_cursor), "activate", G_CALLBACK(inserir_no_cursor), (gpointer) w);
 
 /*
                                     88 88
@@ -185,6 +196,9 @@ int main (int argc, char *argv[]){
         cortar      =   gtk_image_menu_item_new_from_stock (GTK_STOCK_CUT, grupo_atalho);
         colar       =   gtk_image_menu_item_new_from_stock (GTK_STOCK_PASTE, grupo_atalho);
         fonte       =   gtk_image_menu_item_new_from_stock(GTK_STOCK_SELECT_FONT, grupo_atalho);
+
+        /* Anexo cada item para cada função quando receberem um evento de <active> */
+        g_signal_connect(G_OBJECT(fonte), "active", G_CALLBACK(mudar_fonte), (gpointer) w);
 
          /* Criação de um submenu em um item de menu /*/
         mm_item     =   gtk_menu_item_new_with_label ("Caixa Alta/Baixa");
@@ -423,34 +437,33 @@ carregá-lo no buffer do TextView. */
 
 void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado){
 
-    /* Armazena informações de erro. Instanciada inicialmente como NULL, pois,
-    se não receber nenhuma mensagem de erro durante o programa ela se manterá
-    nula. */
-    GError      *erro = NULL;
     GtkWidget   *abrir_dialogo;
     gchar       *texto_arquivo;
     /* Verificar se o arquivo foi aberto com sucesso! */
-    gboolean    resultado;
+    gboolean resultado;
 
 
     abrir_dialogo = gtk_file_chooser_dialog_new("Abrir arquivo", GTK_WINDOW(dado->janela), GTK_FILE_CHOOSER_ACTION_OPEN, "Cancelar", GTK_RESPONSE_CANCEL, "Abrir", GTK_RESPONSE_ACCEPT,  NULL );
 
-    if (gtk_dialog_run (GTK_DIALOG(abrir_dialogo)) == GTK_RESPONSE_ACCEPT )
+    if (gtk_dialog_run (GTK_DIALOG(abrir_dialogo)) == GTK_RESPONSE_ACCEPT ){
         dado->filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(abrir_dialogo));
 
-    gtk_widget_destroy(abrir_dialogo);
+        gtk_widget_destroy(abrir_dialogo);
 
-    /* Pega o conteúdo do arquivo e coloca-o na variável texto_arquivo.
-       Retorna um valor booleano, dependendo do sucesso em passar o conteúdo para a variável.
-       Se não conseguir, a última variável receberá um de erro.
-    */
-    resultado = g_file_get_contents(dado->filename, &texto_arquivo, NULL , NULL);
+        /* Pega o conteúdo do arquivo e coloca-o na variável texto_arquivo.
+           Retorna um valor booleano, dependendo do sucesso em passar o conteúdo para a variável.
+           Se não conseguir, a última variável receberá um de erro.
+        */
+        resultado = g_file_get_contents(dado->filename, &texto_arquivo, NULL , NULL);
 
-    gtk_widget_set_sensitive (dado->text_view, FALSE);
-    gtk_text_buffer_set_text(dado->buffer_text, texto_arquivo,-1);
-    gtk_widget_set_sensitive (dado->text_view, TRUE);
+        gtk_widget_set_sensitive (dado->text_view, FALSE);
+        gtk_text_buffer_set_text(dado->buffer_text, texto_arquivo,-1);
+        gtk_widget_set_sensitive (dado->text_view, TRUE);
 
-    defina_buffer_salvo (dado, dado->filename);
+        defina_buffer_salvo (dado, dado->filename);
+    }else{
+         gtk_widget_destroy(abrir_dialogo);
+    }
 
 }
 
@@ -486,10 +499,13 @@ gboolean caixa_confirmacao (Janela_Buffer *w){
     GtkWidget *dialogo;
 
     dialogo = gtk_dialog_new_with_buttons ("Arquivo não salvo. Deseja salvá-lo?",
-                                      GTK_WINDOW(w->janela),
-                                      GTK_DIALOG_MODAL,
-                                       "Sim", GTK_RESPONSE_ACCEPT,
-                                       "Não", GTK_RESPONSE_CANCEL);
+                                        GTK_WINDOW(w->janela),
+                                        GTK_DIALOG_MODAL,
+                                       GTK_STOCK_YES, GTK_RESPONSE_ACCEPT,
+                                       GTK_STOCK_NO, GTK_RESPONSE_CANCEL, NULL);
+
+    gtk_window_set_gravity(GTK_WINDOW(dialogo), GDK_GRAVITY_CENTER);
+    gtk_window_set_default_size(GTK_WINDOW(dialogo), 450, 40);
 
     if (gtk_dialog_run(GTK_DIALOG(dialogo)) == GTK_RESPONSE_ACCEPT ){
             gtk_widget_destroy(dialogo);
@@ -595,10 +611,17 @@ void tsta (GtkWidget *widget, Janela_Buffer *dado){
     }
 }
 
+/*
+   Método que invocado quando o usuário está prestes a sair do programa.
+   Verifica se o arquivo está salvo ou não para, só então, finalizar o programa.
+*/
 void on_window_delete_event (GtkWidget *widget, Janela_Buffer *dado){
 
-    salvar_arquivo (widget, dado);
-
+    if ((gtk_text_buffer_get_modified(dado->buffer_text)) == TRUE){
+      if (caixa_confirmacao(dado)){
+          salvar_arquivo(widget, dado);
+      }
+    }
 
     printf("Chegou antes do main quit");
     gtk_main_quit();
@@ -624,3 +647,156 @@ void exibirSobre(GtkWidget *widget){
         gtk_widget_destroy(sobre_dialogo);
 }
 
+/*
+    Inserer um arquivo selecionado pelo usuário no começo do documento.
+    É feita uma caixa de diálogo que permitirá ao usuário escolher o arquivo e,
+    caso ele pressione <OK>, o conteúdo do arquivo selecionado será inserido no começo
+    do GtkTextBuffer.
+*/
+void inserir_no_comeco ( GtkWidget *widget, Janela_Buffer *dado){
+
+    GtkWidget   *abrir_dialogo;
+    char        *filename;
+    char        *texto;
+    /* Verificar se o arquivo foi aberto com sucesso! */
+    gboolean    resultado;
+    /* Receberá a posição inicial */
+    GtkTextIter  inicio;
+
+    printf("\n>>>>>>>>>>>>>inserir_comeco");
+
+    abrir_dialogo = gtk_file_chooser_dialog_new("Selecionar arquivo", GTK_WINDOW(dado->janela), GTK_FILE_CHOOSER_ACTION_OPEN, "Cancelar", GTK_RESPONSE_CANCEL, "Abrir", GTK_RESPONSE_ACCEPT,  NULL );
+
+    if (gtk_dialog_run (GTK_DIALOG(abrir_dialogo)) == GTK_RESPONSE_ACCEPT ){
+        /* Como não alteraremos o caminho atual do arquivo no GtkTextBuffer,
+           uma variável local guardará o caminho apenas para pegar o conteúdo */
+        filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(abrir_dialogo));
+        resultado = g_file_get_contents (filename, &texto, NULL, NULL);
+
+        if(resultado){
+            /* Caso o arquivo seja aberto com sucesso, adiciono no "Log"
+               e com o GtkTextIter apontando para o início do documento
+               é que eu insiro no GtkTextBuffer */
+            printf("\nArquivo aberto com sucesso.");
+            gtk_text_buffer_get_start_iter(dado->buffer_text, &inicio);
+            gtk_text_buffer_insert(dado->buffer_text, &inicio, texto, -1);
+        }else{
+            printf("\nErro ao abrir arquivo.");
+        }
+
+        gtk_widget_destroy(abrir_dialogo);
+
+    }else{
+        printf("\nUsuário cancelou a caixa de diálogo, não fazendo nenhuma operação no caso e fecha a caixa.");
+        gtk_widget_destroy(abrir_dialogo);
+    }
+
+    printf("\n>>>>>>>>>>>>>>>Método realizado com sucesso.");
+}
+
+/*
+    Inserer um arquivo selecionado pelo usuário no final do documento.
+    É feita uma caixa de diálogo que permitirá ao usuário escolher o arquivo e,
+    caso ele pressione <OK>, o conteúdo do arquivo selecionado será inserido no final
+    do GtkTextBuffer.
+*/
+void inserir_no_final ( GtkWidget *widget, Janela_Buffer *dado){
+
+    GtkWidget   *abrir_dialogo;
+    char        *filename;
+    char        *texto;
+    /* Verificar se o arquivo foi aberto com sucesso! */
+    gboolean    resultado;
+    /* Receberá a posição final */
+    GtkTextIter  final;
+
+    printf("\n>>>>>>>>>>>>>inserir_final");
+
+    abrir_dialogo = gtk_file_chooser_dialog_new("Selecionar arquivo", GTK_WINDOW(dado->janela), GTK_FILE_CHOOSER_ACTION_OPEN, "Cancelar", GTK_RESPONSE_CANCEL, "Abrir", GTK_RESPONSE_ACCEPT,  NULL );
+
+    if (gtk_dialog_run (GTK_DIALOG(abrir_dialogo)) == GTK_RESPONSE_ACCEPT ){
+        /* Como não alteraremos o caminho atual do arquivo no GtkTextBuffer,
+           uma variável local guardará o caminho apenas para pegar o conteúdo */
+        filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(abrir_dialogo));
+        resultado = g_file_get_contents (filename, &texto, NULL, NULL);
+
+        if(resultado){
+            /* Caso o arquivo seja aberto com sucesso, adiciono no "Log"
+               e com o GtkTextIter apontando para o final do documento
+               é que eu insiro no GtkTextBuffer */
+            printf("\nArquivo aberto com sucesso.");
+            gtk_text_buffer_get_end_iter(dado->buffer_text, &final);
+            gtk_text_buffer_insert(dado->buffer_text, &final, texto, -1);
+        }else{
+            printf("\nErro ao abrir arquivo.");
+        }
+
+        gtk_widget_destroy(abrir_dialogo);
+
+    }else{
+        printf("\nUsuário cancelou a caixa de diálogo, não fazendo nenhuma operação no caso e fecha a caixa.");
+        gtk_widget_destroy(abrir_dialogo);
+    }
+
+    printf("\n>>>>>>>>>>>>>>>Método realizado com sucesso.");
+}
+
+
+/*
+    Inserer um arquivo selecionado pelo usuário aonde o cursor está posicionado do documento.
+    É feita uma caixa de diálogo que permitirá ao usuário escolher o arquivo e,
+    caso ele pressione <OK>, o conteúdo do arquivo selecionado será inserido na posição do cursor
+    do GtkTextBuffer.
+*/
+void inserir_no_cursor ( GtkWidget *widget, Janela_Buffer *dado){
+
+    GtkWidget   *abrir_dialogo;
+    char        *filename;
+    char        *texto;
+    /* Verificar se o arquivo foi aberto com sucesso! */
+    gboolean    resultado;
+
+    printf("\n>>>>>>>>>>>>>inserir_final");
+
+    abrir_dialogo = gtk_file_chooser_dialog_new("Selecionar arquivo", GTK_WINDOW(dado->janela), GTK_FILE_CHOOSER_ACTION_OPEN, "Cancelar", GTK_RESPONSE_CANCEL, "Abrir", GTK_RESPONSE_ACCEPT,  NULL );
+
+    if (gtk_dialog_run (GTK_DIALOG(abrir_dialogo)) == GTK_RESPONSE_ACCEPT ){
+        /* Como não alteraremos o caminho atual do arquivo no GtkTextBuffer,
+           uma variável local guardará o caminho apenas para pegar o conteúdo */
+        filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(abrir_dialogo));
+        resultado = g_file_get_contents (filename, &texto, NULL, NULL);
+
+        if(resultado){
+            /* Caso o arquivo seja aberto com sucesso, adiciono uma mensagem no "Log"
+               e entã adiciono o texto ao cursor */
+            printf("\n (inserir_no_cursor) Arquivo aberto com sucesso.");
+            gtk_text_buffer_insert_at_cursor(dado->buffer_text, texto, -1);
+        }else{
+            printf("\nErro ao abrir arquivo.");
+        }
+
+        gtk_widget_destroy(abrir_dialogo);
+
+    }else{
+        printf("\nUsuário cancelou a caixa de diálogo, não fazendo nenhuma operação no caso e fecha a caixa.");
+        gtk_widget_destroy(abrir_dialogo);
+    }
+
+    printf("\n>>>>>>>>>>>>>>>(inserir_no_cursor) realizado com sucesso.");
+
+}
+
+void copiar(GtkWidget *widget, Janela_Buffer *dado){
+}
+
+void colar (GtkWidget *widget, Janela_Buffer *dado){
+}
+
+/*
+    Abre uma caixa de escolha de fonte, utilizando o retorno como argumento para
+    gtk_text_buffer_set_font
+*/
+void mudar_fonte( GtkWidget *widget, Janela_Buffer *dado){
+
+
+}

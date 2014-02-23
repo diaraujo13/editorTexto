@@ -48,34 +48,32 @@
     void salvar_arquivo (GtkWidget *widget, Janela_Buffer *dado);
     void dialogo_salvar(Janela_Buffer *dado, char* texto);
 
-void on_window_delete_event (GtkWidget *widget, Janela_Buffer *dado);
+    void on_window_delete_event (GtkWidget *widget, Janela_Buffer *dado);
 
     void criar_arquivo (GtkWidget *widget, Janela_Buffer *dado);
     void abrir_arquivo (GtkWidget *widget, Janela_Buffer *dado);
-    void salvar_arquivo (GtkWidget *widget, Janela_Buffer *dado);
-    gboolean checar_modificacao (GtkWidget *widget, Janela_Buffer *dado);
-    void modificado_arquivo (GtkWidget *widge, Janela_Buffer *dado);
-    void on_window_delete_event (GtkWidget *widget, Janela_Buffer *dado);
 
 
-/*
-    void resetar_arquivo (GtkWidget *widget, Janela_Buffer *dado);
-    void sair_app ();
-    void imprimir ();
+    void inserir_no_comeco ( GtkWidget *widget, Janela_Buffer *dado);
+    void inserir_no_final ( GtkWidget *widget, Janela_Buffer *dado);
+    void inserir_no_cursor ( GtkWidget *widget, Janela_Buffer *dado);
 
- Menu Editar
-    void copiar();
-    void colar ();
+
+
+ /* Menu Editar */
+    void copiar(GtkWidget *widget, Janela_Buffer *dado);
+    void colar (GtkWidget *widget, Janela_Buffer *dado);
     static void desfazer(GtkWidget *widget, Janela_Buffer *dado);
     static void refazer (GtkWidget *widget, Janela_Buffer *dado);
-    static void mudarFonte(GtkWidget *widget, Janela_Buffer *dado);
+
+    void mudar_fonte( GtkWidget *widget, Janela_Buffer *dado);
     static void uppercase (GtkWidget *widget, Janela_Buffer *dado);
     static void lowcase (GtkWidget *widget, Janela_Buffer *dado);
 
- Menu Busca
+ /* Menu Busca */
     void procurarProximo(GtkWidget *widget, GtkTextBuffer *buffer_text);
     void procurarAnterior(GtkWidget *widget, GtkTextBuffer *buffer_text);
-    void procurarPalavra(GtkWidget *widget, GtkTextBuffer *buffer_text); */
+    void procurarPalavra(GtkWidget *widget, GtkTextBuffer *buffer_text);
 
 /* Menu Ajuda */
     void exibirSobre(GtkWidget *widget);
